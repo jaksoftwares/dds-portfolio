@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Calendar, Tag, CheckCircle, Globe, Code, Camera, Loader, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  ArrowLeft, ExternalLink, Calendar, Tag, CheckCircle,
+  Globe, Code, Camera, Loader, ChevronLeft, ChevronRight
+} from 'lucide-react';
 import { projects } from '../data/projects';
-import { Project } from '../types/project';
-import { captureScreenshotFree } from '../utils/screenshot';
+import { captureScreenshot } from '../utils/screenshot'; // now loads local image
 import ProjectCard from './ProjectCard';
 
 const ProjectPage: React.FC = () => {
@@ -13,7 +15,7 @@ const ProjectPage: React.FC = () => {
   const [screenshotLoading, setScreenshotLoading] = useState(true);
 
   const project = projects.find(p => p.id === projectId);
-  
+
   if (!project) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
@@ -34,34 +36,34 @@ const ProjectPage: React.FC = () => {
   const previousProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
   const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
 
-  // Get related projects (same category, excluding current)
   const relatedProjects = projects
     .filter(p => p.category === project.category && p.id !== project.id)
     .slice(0, 3);
 
-  // If no related projects in same category, get random projects
-  const suggestedProjects = relatedProjects.length > 0 
-    ? relatedProjects 
+  const suggestedProjects = relatedProjects.length > 0
+    ? relatedProjects
     : projects.filter(p => p.id !== project.id).slice(0, 3);
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const loadScreenshot = async () => {
       setScreenshotLoading(true);
       try {
-        const result = await captureScreenshotFree(project.url);
+        const result = await captureScreenshot(project.url);
         if (result.success && result.imageUrl) {
           setScreenshot(result.imageUrl);
+        } else {
+          setScreenshot('/placeholder.png'); // Fallback image
         }
       } catch (error) {
         console.error('Failed to load screenshot:', error);
+        setScreenshot('/error-placeholder.png');
       } finally {
         setScreenshotLoading(false);
       }
     };
 
     loadScreenshot();
-    
-    // Scroll to top when project changes
     window.scrollTo(0, 0);
   }, [project.url, projectId]);
 

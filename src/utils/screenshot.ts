@@ -1,68 +1,69 @@
-// Screenshot utility for capturing project homepages
+// utils/screenshot.ts
+
 export interface ScreenshotResult {
   success: boolean;
   imageUrl?: string;
   error?: string;
 }
 
-export const captureScreenshot = async (url: string): Promise<ScreenshotResult> => {
-  try {
-    // In a real implementation, this would use a service like:
-    // - Puppeteer (server-side)
-    // - Screenshot API service
-    // - Headless browser service
-    
-    // For demo purposes, we'll simulate the screenshot capture
-    // and return a placeholder that represents the captured screenshot
-    
-    const response = await fetch(`https://api.screenshotmachine.com/?key=YOUR_API_KEY&url=${encodeURIComponent(url)}&dimension=1024x768&format=png`);
-    
-    if (response.ok) {
-      const blob = await response.blob();
-      const imageUrl = URL.createObjectURL(blob);
-      return { success: true, imageUrl };
-    }
-    
-    // Fallback to a placeholder service that generates screenshots
-    const fallbackUrl = `https://api.urlbox.io/v1/YOUR_API_KEY/png?url=${encodeURIComponent(url)}&width=1024&height=768`;
-    
-    return { 
-      success: true, 
-      imageUrl: `https://via.placeholder.com/800x600/1e293b/f97316?text=Screenshot+Loading...`
-    };
-    
-  } catch (error) {
-    console.error('Screenshot capture failed:', error);
-    return { 
-      success: false, 
-      error: 'Failed to capture screenshot',
-      imageUrl: `https://via.placeholder.com/800x600/1e293b/f97316?text=Screenshot+Unavailable`
-    };
-  }
+const projectImageMap: Record<string, string> = {
+  autostore: "/autostore.png",
+  bagcom: "/bagcom.png",
+  carrostore: "/carrostore.png",
+  compdock: "/compdock.png",
+  comphive: "/comphive.png",
+  connectmtaani: "/connectmtaani.png",
+  consultancy: "/consultancy.png",
+  dit: "/dit.png",
+  dovepeakdigital: "/dovepeakdigital.png",
+  "email-hub": "/email-hub.png",
+  helpicent: "/helpicent.png",
+  highrise: "/highrise.png",
+  hopekenya: "/hopekenya.png",
+  hospital: "/hospital.png",
+  "invoice-generator": "/invoice-generator.png",
+  invoicepro: "/invoicepro.png",
+  jasiri: "/jasiri.png",
+  jcrm: "/jcrm.png",
+  jkuatfindmyid: "/jkuatfindmyid.png",
+  jkuatsocialrobotics: "/jkuatsocialrobotics.png",
+  kellianautogarage: "/kellianautogarage.png",
+  kidsbeyondlimit: "/kidsbeyondlimit.png",
+  lapicure: "/lapicure.png",
+  livingspot: "/livingspot.png",
+  "payment-gateway": "/payment-gateway.png",
+  portfolio: "/portfolio.png",
+  smarttrafficai: "/smarttrafficai.png",
+  studyroom: "/studyroom.png",
+  tripatiteinteriors: "/tripatiteinteriors.png",
+  "tyna-marketing": "/tyna-marketing.png",
+  university: "/university.png",
+  watercent: "/watercent.png",
 };
 
-// Alternative implementation using a free screenshot service
-export const captureScreenshotFree = async (url: string): Promise<ScreenshotResult> => {
+export const captureScreenshot = async (url: string): Promise<ScreenshotResult> => {
   try {
-    // Using a free service like htmlcsstoimage.com or similar
-    const screenshotUrl = `https://htmlcsstoimage.com/demo_images/image.png`;
-    
-    // For now, we'll use a placeholder that simulates the actual screenshot
-    // In production, you would integrate with services like:
-    // - Puppeteer Cloud
-    // - Screenshot API
-    // - Browserless.io
-    
-    return {
-      success: true,
-      imageUrl: `https://via.placeholder.com/1200x800/1e293b/ffffff?text=${encodeURIComponent(url.split('//')[1] || 'Project Screenshot')}`
-    };
-    
+    const domain = new URL(url).hostname.split(".")[0].toLowerCase();
+
+    const imagePath = projectImageMap[domain];
+
+    if (imagePath) {
+      return {
+        success: true,
+        imageUrl: imagePath,
+      };
+    } else {
+      return {
+        success: true,
+        imageUrl: `/placeholder.png`, // Ensure you have a fallback placeholder image in /public
+      };
+    }
   } catch (error) {
+    console.error("Screenshot capture failed:", error);
     return {
       success: false,
-      error: 'Screenshot service unavailable',
-      imageUrl: `https://via.placeholder.com/1200x800/1e293b/f97316?text=Screenshot+Error`
+      error: "Invalid URL or local image not found",
+      imageUrl: `/error-placeholder.png`, // Optional: add a red error image to /public
     };
   }
 };
